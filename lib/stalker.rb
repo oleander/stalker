@@ -6,8 +6,8 @@ require 'timeout'
 module Stalker
   extend self
 
-  def censor_params(option = [])
-    @@censor_params = option
+  def censor_params(*options)
+    @@censor_params = options.flatten
   end
   
   def connect(url)
