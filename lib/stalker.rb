@@ -6,6 +6,10 @@ require 'timeout'
 module Stalker
   extend self
 
+  def censor_params(option = [])
+    @@censor_params = option
+  end
+  
   def connect(url)
     @@url = url
     beanstalk
@@ -113,9 +117,14 @@ module Stalker
   end
 
   def log_job_begin(name, args)
+    (@@censor_params ||= []).map!(&:to_s)
     args_flat = unless args.empty?
       '(' + args.inject([]) do |accum, (key,value)|
-        accum << "#{key}=#{value}"
+        if @@censor_params.include?(key)
+          accum << "#{key}=<censored>"
+        else
+          accum << "#{key}=#{value}"
+        end
       end.join(' ') + ')'
     else
       ''
